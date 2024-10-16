@@ -2,16 +2,14 @@ const std = @import("std");
 
 pub fn main() !void {
     const std_out = std.io.getStdOut().writer();
-    var count: u8 = 1;
-    while (count <= 100) : (count += 1) {
-        const div_3: u2 = @intFromBool(count % 3 == 0);
-        const div_5 = @intFromBool(count % 5 == 0);
+    const args = try std.process.argsAlloc(std.heap.page_allocator);
+    defer std.process.argsFree(std.heap.page_allocator, args);
 
-        switch (div_3 << 1 | div_5) {
-            0b11 => try std_out.print("fizzbuzz\n", .{}),
-            0b10 => try std_out.print("fizz\n", .{}),
-            0b01 => try std_out.print("buzz\n", .{}),
-            else => try std_out.print("{}\n", .{count}),
-        }
-    }
+    if (args.len < 2)
+        return error.ExpectedArgument;
+
+    const fahrenheit = try std.fmt.parseFloat(f16, args[1]);
+    const celsius = (fahrenheit - 32) / 1.8;
+
+    try std_out.print("Celsius: {d:.1}", .{celsius});
 }
